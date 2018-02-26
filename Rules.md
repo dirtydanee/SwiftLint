@@ -18762,6 +18762,96 @@ do {
 
 
 
+## Untyped error in catch rule
+
+Identifier | Enabled by default | Supports autocorrection | Kind 
+--- | --- | --- | ---
+`untyped_error_in_catch` | Disabled | No | idiomatic
+
+Catch statements should not declare error variables without type casting.
+
+### Examples
+
+<details>
+<summary>Non Triggering Examples</summary>
+
+```swift
+do {
+    try foo() 
+} catch {}
+```
+
+```swift
+do {
+    try foo() 
+} catch Error.invalidOperation {
+} catch {}
+```
+
+```swift
+do {
+    try foo() 
+} catch let error as MyError {
+} catch {}
+```
+
+```swift
+do {
+    try foo() 
+} catch var error as MyError {
+} catch {}
+```
+
+</details>
+<details>
+<summary>Triggering Examples</summary>
+
+```swift
+do {
+    try foo() 
+} ↓catch var error {}
+```
+
+```swift
+do {
+    try foo() 
+} ↓catch let error {}
+```
+
+```swift
+do {
+    try foo() 
+} ↓catch let someError {}
+```
+
+```swift
+do {
+    try foo() 
+} ↓catch var someError {}
+```
+
+```swift
+do {
+    try foo() 
+} ↓catch let e {}
+```
+
+```swift
+do {
+    try foo() 
+} ↓catch(let error) {}
+```
+
+```swift
+do {
+    try foo() 
+} ↓catch (let error) {}
+```
+
+</details>
+
+
+
 ## Unused Closure Parameter
 
 Identifier | Enabled by default | Supports autocorrection | Kind | Minimum Swift Compiler Version
