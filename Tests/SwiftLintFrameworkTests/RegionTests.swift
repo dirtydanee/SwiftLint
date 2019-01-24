@@ -1,18 +1,9 @@
-//
-//  RegionTests.swift
-//  SwiftLint
-//
-//  Created by JP Simard on 5/24/17.
-//  Copyright © 2017 Realm. All rights reserved.
-//
-
 import Foundation
 import SourceKittenFramework
 @testable import SwiftLintFramework
 import XCTest
 
 class RegionTests: XCTestCase {
-
     // MARK: Regions From Files
 
     func testNoRegionsInEmptyFile() {
@@ -111,5 +102,4 @@ class RegionTests: XCTestCase {
                    disabledRuleIdentifiers: [])
         ])
     }
-
 }

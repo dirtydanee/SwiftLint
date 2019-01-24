@@ -1,13 +1,3 @@
-//
-//  FileLengthRuleConfiguration.swift
-//  SwiftLint
-//
-//  Created by Samuel Susla on 11/07/17.
-//  Copyright © 2016 Realm. All rights reserved.
-//
-
-import Foundation
-
 private enum ConfigurationKey: String {
     case warning = "warning"
     case error = "error"
@@ -53,12 +43,5 @@ public struct FileLengthRuleConfiguration: RuleConfiguration, Equatable {
         } else {
             throw ConfigurationError.unknownConfiguration
         }
-
-    }
-
-    public static func == (lhs: FileLengthRuleConfiguration,
-                           rhs: FileLengthRuleConfiguration) -> Bool {
-        return lhs.ignoreCommentOnlyLines == rhs.ignoreCommentOnlyLines &&
-            lhs.severityConfiguration == rhs.severityConfiguration
     }
 }

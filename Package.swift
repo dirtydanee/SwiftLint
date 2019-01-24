@@ -1,6 +1,12 @@
 // swift-tools-version:4.0
 import PackageDescription
 
+#if canImport(CommonCrypto)
+private let addCryptoSwift = false
+#else
+private let addCryptoSwift = true
+#endif
+
 let package = Package(
     name: "SwiftLint",
     products: [
@@ -8,11 +14,11 @@ let package = Package(
         .library(name: "SwiftLintFramework", targets: ["SwiftLintFramework"])
     ],
     dependencies: [
-        .package(url: "https://github.com/Carthage/Commandant.git", .branch("master")),
-        .package(url: "https://github.com/jpsim/SourceKitten.git", from: "0.18.4"),
-        .package(url: "https://github.com/jpsim/Yams.git", from: "0.4.1"),
-        .package(url: "https://github.com/jpsim/SwiftyTextTable.git", .branch("characters")),
-    ],
+        .package(url: "https://github.com/Carthage/Commandant.git", from: "0.15.0"),
+        .package(url: "https://github.com/jpsim/SourceKitten.git", from: "0.22.0"),
+        .package(url: "https://github.com/jpsim/Yams.git", from: "1.0.1"),
+        .package(url: "https://github.com/scottrhoyt/SwiftyTextTable.git", from: "0.8.2"),
+    ] + (addCryptoSwift ? [.package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "0.13.0")] : []),
     targets: [
         .target(
             name: "swiftlint",
@@ -27,7 +33,7 @@ let package = Package(
             dependencies: [
                 "SourceKittenFramework",
                 "Yams",
-            ]
+            ] + (addCryptoSwift ? ["CryptoSwift"] : [])
         ),
         .testTarget(
             name: "SwiftLintFrameworkTests",
@@ -38,6 +44,5 @@ let package = Package(
                 "Resources",
             ]
         )
-    ],
-    swiftLanguageVersions: [3, 4]
+    ]
 )

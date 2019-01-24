@@ -1,11 +1,3 @@
-//
-//  RuleTests.swift
-//  SwiftLint
-//
-//  Created by Scott Hoyt on 12/29/15.
-//  Copyright © 2015 Realm. All rights reserved.
-//
-
 import SourceKittenFramework
 @testable import SwiftLintFramework
 import XCTest
@@ -19,11 +11,16 @@ struct RuleWithLevelsMock: ConfigurationProviderRule {
                                              kind: .style,
                                              deprecatedAliases: ["mock"])
 
+    init() {}
+    init(configuration: Any) throws {
+        self.init()
+        try self.configuration.apply(configuration: configuration)
+    }
+
     func validate(file: File) -> [StyleViolation] { return [] }
 }
 
 class RuleTests: XCTestCase {
-
     fileprivate struct RuleMock1: Rule {
         var configurationDescription: String { return "N/A" }
         static let description = RuleDescription(identifier: "RuleMock1", name: "",
@@ -55,6 +52,12 @@ class RuleTests: XCTestCase {
         static let description = RuleDescription(identifier: "violation_level_mock2",
                                                  name: "",
                                                  description: "", kind: .style)
+
+        init() {}
+        init(configuration: Any) throws {
+            self.init()
+            try self.configuration.apply(configuration: configuration)
+        }
 
         func validate(file: File) -> [StyleViolation] { return [] }
     }

@@ -1,13 +1,3 @@
-//
-//  RuleList.swift
-//  SwiftLint
-//
-//  Created by JP Simard on 5/31/17.
-//  Copyright © 2017 Realm. All rights reserved.
-//
-
-import Foundation
-
 public enum RuleListError: Error {
     case duplicatedConfigurations(rule: Rule.Type)
 }
@@ -67,7 +57,7 @@ public struct RuleList {
     }
 
     internal func allValidIdentifiers() -> [String] {
-        return list.flatMap { (_, rule) -> [String] in
+        return list.flatMap { _, rule -> [String] in
             rule.description.allIdentifiers
         }
     }

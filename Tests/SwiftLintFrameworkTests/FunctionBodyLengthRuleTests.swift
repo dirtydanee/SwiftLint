@@ -1,11 +1,3 @@
-//
-//  FunctionBodyLengthRuleTests.swift
-//  SwiftLint
-//
-//  Created by Marcelo Fabri on 12/01/16.
-//  Copyright © 2016 Realm. All rights reserved.
-//
-
 import SwiftLintFramework
 import XCTest
 
@@ -19,6 +11,9 @@ private func violatingFuncWithBody(_ body: String) -> String {
 }
 
 class FunctionBodyLengthRuleTests: XCTestCase {
+    func testWithDefaultConfiguration() {
+        verifyRule(FunctionBodyLengthRule.description)
+    }
 
     func testFunctionBodyLengths() {
         let longFunctionBody = funcWithBody(repeatElement("x = 0\n", count: 39).joined())

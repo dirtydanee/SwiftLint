@@ -1,16 +1,10 @@
-//
-//  RulesCommand.swift
-//  SwiftLint
-//
-//  Created by Chris Eidhof on 20/05/15.
-//  Copyright © 2015 Realm. All rights reserved.
-//
-
 import Commandant
-#if os(Linux)
+#if canImport(Darwin)
+import Darwin
+#elseif canImport(Glibc)
 import Glibc
 #else
-import Darwin
+#error("Unsupported platform")
 #endif
 import Result
 import SwiftLintFramework
@@ -62,7 +56,7 @@ struct RulesCommand: CommandProtocol {
             return masterRuleList
         }
 
-        let filtered: [Rule.Type] = masterRuleList.list.flatMap { ruleID, ruleType in
+        let filtered: [Rule.Type] = masterRuleList.list.compactMap { ruleID, ruleType in
             let configuredRule = configuration.rules.first { rule in
                 return type(of: rule).description.identifier == ruleID
             }
@@ -120,6 +114,7 @@ extension TextTable {
             TextTableColumn(header: "correctable"),
             TextTableColumn(header: "enabled in your config"),
             TextTableColumn(header: "kind"),
+            TextTableColumn(header: "analyzer"),
             TextTableColumn(header: "configuration")
         ]
         self.init(columns: columns)
@@ -141,7 +136,13 @@ extension TextTable {
         for (ruleID, ruleType) in sortedRules {
             let rule = ruleType.init()
             let configuredRule = configuration.rules.first { rule in
-                return type(of: rule).description.identifier == ruleID
+                guard type(of: rule).description.identifier == ruleID else {
+                    return false
+                }
+                guard let customRules = rule as? CustomRules else {
+                    return true
+                }
+                return !customRules.configuration.customRuleConfigurations.isEmpty
             }
             addRow(values: [
                 ruleID,
@@ -149,6 +150,7 @@ extension TextTable {
                 (rule is CorrectableRule) ? "yes" : "no",
                 configuredRule != nil ? "yes" : "no",
                 ruleType.description.kind.rawValue,
+                (rule is AnalyzerRule) ? "yes" : "no",
                 truncate((configuredRule ?? rule).configurationDescription)
             ])
         }

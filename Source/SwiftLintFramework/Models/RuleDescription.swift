@@ -1,11 +1,3 @@
-//
-//  RuleDescription.swift
-//  SwiftLint
-//
-//  Created by Chris Eidhof on 25/05/15.
-//  Copyright © 2015 Realm. All rights reserved.
-//
-
 public struct RuleDescription: Equatable {
     public let identifier: String
     public let name: String
@@ -15,6 +7,8 @@ public struct RuleDescription: Equatable {
     public let triggeringExamples: [String]
     public let corrections: [String: String]
     public let deprecatedAliases: Set<String>
+    public let minSwiftVersion: SwiftVersion
+    public let requiresFileOnDisk: Bool
 
     public var consoleDescription: String { return "\(name) (\(identifier)): \(description)" }
 
@@ -23,9 +17,11 @@ public struct RuleDescription: Equatable {
     }
 
     public init(identifier: String, name: String, description: String, kind: RuleKind,
+                minSwiftVersion: SwiftVersion = .three,
                 nonTriggeringExamples: [String] = [], triggeringExamples: [String] = [],
                 corrections: [String: String] = [:],
-                deprecatedAliases: Set<String> = []) {
+                deprecatedAliases: Set<String> = [],
+                requiresFileOnDisk: Bool = false) {
         self.identifier = identifier
         self.name = name
         self.description = description
@@ -34,11 +30,13 @@ public struct RuleDescription: Equatable {
         self.triggeringExamples = triggeringExamples
         self.corrections = corrections
         self.deprecatedAliases = deprecatedAliases
+        self.minSwiftVersion = minSwiftVersion
+        self.requiresFileOnDisk = requiresFileOnDisk
     }
-}
 
-// MARK: Equatable
+    // MARK: Equatable
 
-public func == (lhs: RuleDescription, rhs: RuleDescription) -> Bool {
-    return lhs.identifier == rhs.identifier
+    public static func == (lhs: RuleDescription, rhs: RuleDescription) -> Bool {
+        return lhs.identifier == rhs.identifier
+    }
 }

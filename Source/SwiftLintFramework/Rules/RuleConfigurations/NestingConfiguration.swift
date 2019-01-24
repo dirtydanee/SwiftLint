@@ -1,13 +1,3 @@
-//
-//  NestingConfiguration.swift
-//  SwiftLint
-//
-//  Created by 林達也 on 03/03/16.
-//  Copyright © 2017 Realm. All rights reserved.
-//
-
-import Foundation
-
 public struct NestingConfiguration: RuleConfiguration, Equatable {
     public var consoleDescription: String {
         return "(type_level) \(typeLevel.shortConsoleDescription), " +
@@ -53,9 +43,4 @@ public struct NestingConfiguration: RuleConfiguration, Equatable {
         case .warning: return config.warning
         }
     }
-}
-
-public func == (lhs: NestingConfiguration, rhs: NestingConfiguration) -> Bool {
-    return lhs.typeLevel == rhs.typeLevel
-        && lhs.statementLevel == rhs.statementLevel
 }

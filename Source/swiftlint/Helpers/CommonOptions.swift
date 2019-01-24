@@ -1,11 +1,3 @@
-//
-//  CommonOptions.swift
-//  SwiftLint
-//
-//  Created by JP Simard on 2/11/16.
-//  Copyright © 2016 Realm. All rights reserved.
-//
-
 import Commandant
 import SwiftLintFramework
 
@@ -13,6 +5,11 @@ func pathOption(action: String) -> Option<String> {
     return Option(key: "path",
                   defaultValue: "",
                   usage: "the path to the file or directory to \(action)")
+}
+
+func pathsArgument(action: String) -> Argument<[String]> {
+    return Argument(defaultValue: [""],
+                    usage: "list of paths to the files or directories to \(action)")
 }
 
 let configOption = Option(key: "config",

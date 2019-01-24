@@ -1,11 +1,3 @@
-//
-//  String+SwiftLint.swift
-//  SwiftLint
-//
-//  Created by JP Simard on 5/16/15.
-//  Copyright © 2015 Realm. All rights reserved.
-//
-
 import Foundation
 import SourceKittenFramework
 
@@ -70,10 +62,17 @@ extension String {
                                  limitedBy: utf16.endIndex) ?? utf16.endIndex
         let to16 = utf16.index(from16, offsetBy: nsrange.length,
                                limitedBy: utf16.endIndex) ?? utf16.endIndex
-        if let from = Index(from16, within: self), let to = Index(to16, within: self) {
-            return from..<to
+
+        guard let fromIndex = Index(from16, within: self),
+            let toIndex = Index(to16, within: self) else {
+                return nil
         }
-        return nil
+
+        return fromIndex..<toIndex
+    }
+
+    internal var fullNSRange: NSRange {
+        return NSRange(location: 0, length: utf16.count)
     }
 
     public func absolutePathStandardized() -> String {
@@ -83,11 +82,7 @@ extension String {
     internal var isFile: Bool {
         var isDirectoryObjC: ObjCBool = false
         if FileManager.default.fileExists(atPath: self, isDirectory: &isDirectoryObjC) {
-            #if os(Linux)
-                return !isDirectoryObjC
-            #else
-                return !isDirectoryObjC.boolValue
-            #endif
+            return !isDirectoryObjC.boolValue
         }
         return false
     }

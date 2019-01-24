@@ -1,12 +1,3 @@
-//
-//  Linter.swift
-//  SwiftLint
-//
-//  Created by JP Simard on 5/16/15.
-//  Copyright © 2015 Realm. All rights reserved.
-//
-
-import Dispatch
 import Foundation
 import SourceKittenFramework
 
@@ -31,7 +22,7 @@ private extension Rule {
             return region.isRuleDisabled(superfluousDisableCommandRule)
         }
 
-        return regionsDisablingCurrentRule.flatMap { region -> StyleViolation? in
+        return regionsDisablingCurrentRule.compactMap { region -> StyleViolation? in
             let isSuperflousRuleDisabled = regionsDisablingSuperflousDisableRule.contains { $0.contains(region.start) }
             guard !isSuperflousRuleDisabled else {
                 return nil
@@ -53,8 +44,12 @@ private extension Rule {
         }
     }
 
+    // As we need the configuration to get custom identifiers.
+    // swiftlint:disable:next function_parameter_count
     func lint(file: File, regions: [Region], benchmark: Bool,
-              superfluousDisableCommandRule: SuperfluousDisableCommandRule?) -> LintResult? {
+              configuration: Configuration,
+              superfluousDisableCommandRule: SuperfluousDisableCommandRule?,
+              compilerArguments: [String]) -> LintResult? {
         if !(self is SourceKitFreeRule) && file.sourcekitdFailed {
             return nil
         }
@@ -65,10 +60,10 @@ private extension Rule {
         let ruleTime: (String, Double)?
         if benchmark {
             let start = Date()
-            violations = validate(file: file)
+            violations = validate(file: file, compilerArguments: compilerArguments)
             ruleTime = (ruleID, -start.timeIntervalSinceNow)
         } else {
-            violations = validate(file: file)
+            violations = validate(file: file, compilerArguments: compilerArguments)
             ruleTime = nil
         }
 
@@ -80,16 +75,21 @@ private extension Rule {
 
         let ruleIDs = Self.description.allIdentifiers +
             (superfluousDisableCommandRule.map({ type(of: $0) })?.description.allIdentifiers ?? [])
+        let ruleIdentifiers = Set(ruleIDs.map { RuleIdentifier($0) })
 
         let superfluousDisableCommandViolations = Self.superfluousDisableCommandViolations(
-            regions: regions.count > 1 ? file.regions(restrictingRuleIdentifiers: ruleIDs) : regions,
+            regions: regions.count > 1 ? file.regions(restrictingRuleIdentifiers: ruleIdentifiers) : regions,
             superfluousDisableCommandRule: superfluousDisableCommandRule,
             allViolations: violations
         )
 
+        let undefinedSuperfluousCommandViolations = self.undefinedSuperfluousCommandViolations(
+            regions: regions, configuration: configuration,
+            superfluousDisableCommandRule: superfluousDisableCommandRule)
+
         let enabledViolations: [StyleViolation]
         if file.contents.hasPrefix("#!") { // if a violation happens on the same line as a shebang, ignore it
-            enabledViolations = enabledViolationsAndRegions.flatMap { violation, _ in
+            enabledViolations = enabledViolationsAndRegions.compactMap { violation, _ in
                 if violation.location.line == 1 { return nil }
                 return violation
             }
@@ -101,8 +101,37 @@ private extension Rule {
             return identifiers.map { ($0, ruleID) }
         }
 
-        return LintResult(violations: enabledViolations + superfluousDisableCommandViolations, ruleTime: ruleTime,
-                          deprecatedToValidIDPairs: deprecatedToValidIDPairs)
+        return LintResult(
+            violations: enabledViolations + superfluousDisableCommandViolations + undefinedSuperfluousCommandViolations,
+            ruleTime: ruleTime,
+            deprecatedToValidIDPairs: deprecatedToValidIDPairs)
+    }
+
+    private func undefinedSuperfluousCommandViolations(regions: [Region],
+                                                       configuration: Configuration,
+                                                       superfluousDisableCommandRule: SuperfluousDisableCommandRule?
+        ) -> [StyleViolation] {
+        guard !regions.isEmpty, let superfluousDisableCommandRule = superfluousDisableCommandRule else {
+            return []
+        }
+        let allCustomIdentifiers = configuration.customRuleIdentifiers.map { RuleIdentifier($0) }
+        let allRuleIdentifiers = masterRuleList.allValidIdentifiers().map { RuleIdentifier($0) }
+        let allValidIdentifiers = Set(allCustomIdentifiers + allRuleIdentifiers)
+        let regions = regions.filter {
+            !$0.disabledRuleIdentifiers.contains(.all) &&
+                $0.disabledRuleIdentifiers.isDisjoint(with: allValidIdentifiers)
+        }
+
+        return regions.flatMap { region in
+            region.disabledRuleIdentifiers.filter({ !allValidIdentifiers.contains($0) }).map { id in
+                return StyleViolation(
+                    ruleDescription: type(of: superfluousDisableCommandRule).description,
+                    severity: superfluousDisableCommandRule.configuration.severity,
+                    location: region.start,
+                    reason: superfluousDisableCommandRule.reason(for: id.stringRepresentation)
+                )
+            }
+        }
     }
 }
 
@@ -111,6 +140,7 @@ public struct Linter {
     private let rules: [Rule]
     private let cache: LinterCache?
     private let configuration: Configuration
+    private let compilerArguments: [String]
 
     public var styleViolations: [StyleViolation] {
         return getStyleViolations().0
@@ -121,7 +151,6 @@ public struct Linter {
     }
 
     private func getStyleViolations(benchmark: Bool = false) -> ([StyleViolation], [(id: String, time: Double)]) {
-
         if let cached = cachedStyleViolations(benchmark: benchmark) {
             return cached
         }
@@ -133,12 +162,14 @@ public struct Linter {
         let superfluousDisableCommandRule = rules.first(where: {
             $0 is SuperfluousDisableCommandRule
         }) as? SuperfluousDisableCommandRule
-        let validationResults = rules.parallelFlatMap {
+        let validationResults = rules.parallelCompactMap {
             $0.lint(file: self.file, regions: regions, benchmark: benchmark,
-                    superfluousDisableCommandRule: superfluousDisableCommandRule)
+                    configuration: self.configuration,
+                    superfluousDisableCommandRule: superfluousDisableCommandRule,
+                    compilerArguments: self.compilerArguments)
         }
         let violations = validationResults.flatMap { $0.violations }
-        let ruleTimes = validationResults.flatMap { $0.ruleTime }
+        let ruleTimes = validationResults.compactMap { $0.ruleTime }
         var deprecatedToValidIdentifier = [String: String]()
         for (key, value) in validationResults.flatMap({ $0.deprecatedToValidIDPairs }) {
             deprecatedToValidIdentifier[key] = value
@@ -168,7 +199,7 @@ public struct Linter {
             // let's assume that all rules should have the same duration and split the duration among them
             let totalTime = -start.timeIntervalSinceNow
             let fractionedTime = totalTime / TimeInterval(rules.count)
-            ruleTimes = rules.flatMap { rule in
+            ruleTimes = rules.compactMap { rule in
                 let id = type(of: rule).description.identifier
                 return (id, fractionedTime)
             }
@@ -177,11 +208,19 @@ public struct Linter {
         return (cachedViolations, ruleTimes)
     }
 
-    public init(file: File, configuration: Configuration = Configuration()!, cache: LinterCache? = nil) {
+    public init(file: File, configuration: Configuration = Configuration()!, cache: LinterCache? = nil,
+                compilerArguments: [String] = []) {
         self.file = file
-        self.cache = cache
         self.configuration = configuration
-        rules = configuration.rules
+        self.cache = cache
+        self.compilerArguments = compilerArguments
+        self.rules = configuration.rules.filter { rule in
+            if compilerArguments.isEmpty {
+                return !(rule is AnalyzerRule)
+            } else {
+                return rule is AnalyzerRule
+            }
+        }
     }
 
     public func correct() -> [Correction] {
@@ -190,13 +229,22 @@ public struct Linter {
         }
 
         var corrections = [Correction]()
-        for rule in rules.flatMap({ $0 as? CorrectableRule }) {
-            let newCorrections = rule.correct(file: file)
+        for rule in rules.compactMap({ $0 as? CorrectableRule }) {
+            let newCorrections = rule.correct(file: file, compilerArguments: compilerArguments)
             corrections += newCorrections
             if !newCorrections.isEmpty {
                 file.invalidateCache()
             }
         }
         return corrections
+    }
+
+    public func format(useTabs: Bool, indentWidth: Int) {
+        let formattedContents = try? file.format(trimmingTrailingWhitespace: true,
+                                                 useTabs: useTabs,
+                                                 indentWidth: indentWidth)
+        if let formattedContents = formattedContents {
+            file.write(formattedContents)
+        }
     }
 }

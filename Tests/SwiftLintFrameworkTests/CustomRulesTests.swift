@@ -1,24 +1,19 @@
-//
-//  CustomRulesTests.swift
-//  SwiftLint
-//
-//  Created by Scott Hoyt on 1/21/16.
-//  Copyright © 2016 Realm. All rights reserved.
-//
-
 import Foundation
 import SourceKittenFramework
 @testable import SwiftLintFramework
 import XCTest
 
 class CustomRulesTests: XCTestCase {
-
     func testCustomRuleConfigurationSetsCorrectly() {
-        let configDict = ["my_custom_rule": ["name": "MyCustomRule",
-            "message": "Message",
-            "regex": "regex",
-            "match_kinds": "comment",
-            "severity": "error"]]
+        let configDict = [
+            "my_custom_rule": [
+                "name": "MyCustomRule",
+                "message": "Message",
+                "regex": "regex",
+                "match_kinds": "comment",
+                "severity": "error"
+            ]
+        ]
         var comp = RegexConfiguration(identifier: "my_custom_rule")
         comp.name = "MyCustomRule"
         comp.message = "Message"
@@ -140,7 +135,7 @@ class CustomRulesTests: XCTestCase {
 
     private func getCustomRulesWithTwoRules() -> ((RegexConfiguration, RegexConfiguration), CustomRules) {
         let config1 = ["regex": "pattern",
-                      "match_kinds": "comment"]
+                       "match_kinds": "comment"]
 
         var regexConfig1 = RegexConfiguration(identifier: "custom1")
         do {
@@ -168,6 +163,6 @@ class CustomRulesTests: XCTestCase {
     }
 
     private func getTestTextFile() -> File {
-        return File(path: "\(bundlePath)/test.txt")!
+        return File(path: "\(testResourcesPath)/test.txt")!
     }
 }

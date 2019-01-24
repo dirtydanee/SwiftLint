@@ -1,13 +1,3 @@
-//
-//  ImplicitlyUnwrappedOptionalConfiguration.swift
-//  SwiftLint
-//
-//  Created by Siarhei Fedartsou on 18/03/17.
-//  Copyright © 2017 Realm. All rights reserved.
-//
-
-import Foundation
-
 // swiftlint:disable:next type_name
 public enum ImplicitlyUnwrappedOptionalModeConfiguration: String {
     case all = "all"
@@ -49,11 +39,5 @@ public struct ImplicitlyUnwrappedOptionalConfiguration: RuleConfiguration, Equat
         if let severityString = configuration["severity"] as? String {
             try severity.apply(configuration: severityString)
         }
-    }
-
-    public static func == (lhs: ImplicitlyUnwrappedOptionalConfiguration,
-                           rhs: ImplicitlyUnwrappedOptionalConfiguration) -> Bool {
-        return lhs.severity == rhs.severity &&
-            lhs.mode == rhs.mode
     }
 }

@@ -1,18 +1,9 @@
-//
-//  SourceKitCrashTests.swift
-//  SwiftLint
-//
-//  Created by 野村 憲男 on 2/10/16.
-//  Copyright © 2016 Realm. All rights reserved.
-//
-
 import Foundation
 import SourceKittenFramework
 @testable import SwiftLintFramework
 import XCTest
 
 class SourceKitCrashTests: XCTestCase {
-
     func testAssertHandlerIsNotCalledOnNormalFile() {
         let file = File(contents: "A file didn't crash SourceKitService")
         file.sourcekitdFailed = false

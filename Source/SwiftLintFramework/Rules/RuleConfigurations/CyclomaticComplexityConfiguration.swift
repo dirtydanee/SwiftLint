@@ -1,11 +1,3 @@
-//
-//  CyclomaticComplexityConfiguration.swift
-//  SwiftLint
-//
-//  Created by Mike Welles on 2/9/17.
-//  Copyright © 2017 Realm. All rights reserved.
-//
-import Foundation
 import SourceKittenFramework
 
 private enum ConfigurationKey: String {
@@ -80,10 +72,4 @@ public struct CyclomaticComplexityConfiguration: RuleConfiguration, Equatable {
             throw ConfigurationError.unknownConfiguration
         }
     }
-
-}
-
-public func == (lhs: CyclomaticComplexityConfiguration, rhs: CyclomaticComplexityConfiguration) -> Bool {
-    return lhs.length == rhs.length &&
-        lhs.ignoresCaseStatements == rhs.ignoresCaseStatements
 }

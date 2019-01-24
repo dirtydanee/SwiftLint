@@ -1,13 +1,3 @@
-//
-//  JUnitReporter.swift
-//  SwiftLint
-//
-//  Created by Matthew Ellis on 5/25/16.
-//  Copyright © 2016 Realm. All rights reserved.
-//
-
-import Foundation
-
 public struct JUnitReporter: Reporter {
     public static let identifier = "junit"
     public static let isRealtime = false
@@ -23,9 +13,11 @@ public struct JUnitReporter: Reporter {
                 let severity = violation.severity.rawValue + ":\n"
                 let message = severity + "Line:" + String(violation.location.line ?? 0) + " "
                 let reason = violation.reason.escapedForXML()
-                return ["\n\t<testcase classname='Formatting Test' name='\(fileName)\'>\n",
+                return [
+                    "\n\t<testcase classname='Formatting Test' name='\(fileName)\'>\n",
                     "<failure message='\(reason)\'>" + message + "</failure>",
-                    "\t</testcase>"].joined()
+                    "\t</testcase>"
+                ].joined()
             }).joined() + "\n</testsuite></testsuites>"
     }
 }

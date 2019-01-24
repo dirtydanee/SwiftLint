@@ -1,13 +1,3 @@
-//
-//  EmojiReporter.swift
-//  SwiftLint
-//
-//  Created by Michał Kałużny on 12/01/16.
-//  Copyright © 2016 Realm. All rights reserved.
-//
-
-import Foundation
-
 public struct EmojiReporter: Reporter {
     public static let identifier = "emoji"
     public static let isRealtime = false

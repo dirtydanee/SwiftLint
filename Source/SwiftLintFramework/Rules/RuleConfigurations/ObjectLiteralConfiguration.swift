@@ -1,13 +1,3 @@
-//
-//  ObjectLiteralConfiguration.swift
-//  SwiftLint
-//
-//  Created by Cihat Gündüz on 06/03/17.
-//  Copyright © 2017 Realm. All rights reserved.
-//
-
-import Foundation
-
 public struct ObjectLiteralConfiguration: RuleConfiguration, Equatable {
     private(set) var severityConfiguration = SeverityConfiguration(.warning)
     private(set) var imageLiteral = true
@@ -30,12 +20,5 @@ public struct ObjectLiteralConfiguration: RuleConfiguration, Equatable {
         if let severityString = configuration["severity"] as? String {
             try severityConfiguration.apply(configuration: severityString)
         }
-    }
-
-    public static func == (lhs: ObjectLiteralConfiguration,
-                           rhs: ObjectLiteralConfiguration) -> Bool {
-        return lhs.severityConfiguration == rhs.severityConfiguration &&
-            lhs.imageLiteral == rhs.imageLiteral &&
-            lhs.colorLiteral == rhs.colorLiteral
     }
 }

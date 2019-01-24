@@ -1,11 +1,3 @@
-//
-//  HTMLReporter.swift
-//  SwiftLint
-//
-//  Created by Johnykutty on 10/27/16.
-//  Copyright © 2016 Realm. All rights reserved.
-//
-
 import Foundation
 
 private let formatter: DateFormatter = {
@@ -34,7 +26,7 @@ public struct HTMLReporter: Reporter {
             return rows + generateSingleRow(for: indexAndViolation.1, at: indexAndViolation.0 + 1)
         }
 
-        let fileCount = Set(violations.flatMap({ $0.location.file })).count
+        let fileCount = Set(violations.compactMap({ $0.location.file })).count
         let warningCount = violations.filter({ $0.severity == .warning }).count
         let errorCount = violations.filter({ $0.severity == .error }).count
 

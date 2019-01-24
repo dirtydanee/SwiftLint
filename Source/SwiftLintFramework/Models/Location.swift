@@ -1,11 +1,3 @@
-//
-//  Location.swift
-//  SwiftLint
-//
-//  Created by JP Simard on 5/16/15.
-//  Copyright © 2015 Realm. All rights reserved.
-//
-
 import Foundation
 import SourceKittenFramework
 
@@ -18,7 +10,7 @@ public struct Location: CustomStringConvertible, Comparable {
         // {full_path_to_file}{:line}{:character}: {error,warning}: {content}
         let fileString: String = file ?? "<nopath>"
         let lineString: String = ":\(line ?? 1)"
-        let charString: String = character.map({ ":\($0)" }) ?? ""
+        let charString: String = ":\(character ?? 1)"
         return [fileString, lineString, charString].joined()
     }
     public var relativeFile: String? {
@@ -52,33 +44,29 @@ public struct Location: CustomStringConvertible, Comparable {
             character = nil
         }
     }
-}
 
-// MARK: Comparable
+    // MARK: Comparable
 
-private func < <T: Comparable>(lhs: T?, rhs: T?) -> Bool {
-    switch (lhs, rhs) {
-    case let (l?, r?):
-        return l < r
-    case (nil, _?):
-        return true
-    default:
-        return false
-  }
-}
-
-public func == (lhs: Location, rhs: Location) -> Bool {
-    return lhs.file == rhs.file &&
-        lhs.line == rhs.line &&
-        lhs.character == rhs.character
-}
-
-public func < (lhs: Location, rhs: Location) -> Bool {
-    if lhs.file != rhs.file {
-        return lhs.file < rhs.file
+    public static func < (lhs: Location, rhs: Location) -> Bool {
+        if lhs.file != rhs.file {
+            return lhs.file < rhs.file
+        }
+        if lhs.line != rhs.line {
+            return lhs.line < rhs.line
+        }
+        return lhs.character < rhs.character
     }
-    if lhs.line != rhs.line {
-        return lhs.line < rhs.line
+}
+
+private extension Optional where Wrapped: Comparable {
+    static func < (lhs: Optional, rhs: Optional) -> Bool {
+        switch (lhs, rhs) {
+        case let (lhs?, rhs?):
+            return lhs < rhs
+        case (nil, _?):
+            return true
+        default:
+            return false
+        }
     }
-    return lhs.character < rhs.character
 }

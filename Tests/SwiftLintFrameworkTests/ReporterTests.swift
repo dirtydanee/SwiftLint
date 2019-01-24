@@ -1,18 +1,9 @@
-//
-//  ReporterTests.swift
-//  SwiftLint
-//
-//  Created by JP Simard on 9/19/15.
-//  Copyright © 2015 Realm. All rights reserved.
-//
-
 import Foundation
 import SourceKittenFramework
 @testable import SwiftLintFramework
 import XCTest
 
 class ReporterTests: XCTestCase {
-
     func testReporterFromString() {
         let reporters: [Reporter.Type] = [
             XcodeReporter.self,
@@ -21,7 +12,9 @@ class ReporterTests: XCTestCase {
             CheckstyleReporter.self,
             JUnitReporter.self,
             HTMLReporter.self,
-            EmojiReporter.self
+            EmojiReporter.self,
+            SonarQubeReporter.self,
+            MarkdownReporter.self
         ]
         for reporter in reporters {
             XCTAssertEqual(reporter.identifier, reporterFrom(identifier: reporter.identifier).identifier)
@@ -29,7 +22,7 @@ class ReporterTests: XCTestCase {
     }
 
     private func stringFromFile(_ filename: String) -> String {
-        return File(path: "\(bundlePath)/\(filename)")!.contents
+        return File(path: "\(testResourcesPath)/\(filename)")!.contents
     }
 
     private func generateViolations() -> [StyleViolation] {
@@ -61,28 +54,25 @@ class ReporterTests: XCTestCase {
     }
 
     func testEmojiReporter() {
-    #if _runtime(_ObjC)
         let expectedOutput = stringFromFile("CannedEmojiReporterOutput.txt")
-    #else
-        let expectedOutput = stringFromFile("CannedEmojiReporterOutputNonObjC.txt")
-    #endif
         let result = EmojiReporter.generateReport(generateViolations())
         XCTAssertEqual(result, expectedOutput)
+    }
+
+    private func jsonValue(_ jsonString: String) throws -> NSObject {
+        let data = jsonString.data(using: .utf8)!
+        let result = try JSONSerialization.jsonObject(with: data, options: [])
+        if let dict = (result as? [String: Any])?.bridge() {
+            return dict
+        } else if let array = (result as? [Any])?.bridge() {
+            return array
+        }
+        queuedFatalError("Unexpected value in JSON: \(result)")
     }
 
     func testJSONReporter() throws {
         let expectedOutput = stringFromFile("CannedJSONReporterOutput.json")
         let result = JSONReporter.generateReport(generateViolations())
-        func jsonValue(_ jsonString: String) throws -> NSObject {
-            let data = jsonString.data(using: .utf8)!
-            let result = try JSONSerialization.jsonObject(with: data, options: [])
-            if let dict = (result as? [String: Any])?.bridge() {
-                return dict
-            } else if let array = (result as? [Any])?.bridge() {
-                return array
-            }
-            fatalError("Unexpected value in JSON: \(result)")
-        }
         XCTAssertEqual(try jsonValue(result), try jsonValue(expectedOutput))
     }
 
@@ -111,6 +101,18 @@ class ReporterTests: XCTestCase {
                 swiftlintVersion: "1.2.3",
                 dateString: "13/12/2016"
         )
+        XCTAssertEqual(result, expectedOutput)
+    }
+
+    func testSonarQubeReporter() {
+        let expectedOutput = stringFromFile("CannedSonarQubeReporterOutput.json")
+        let result = SonarQubeReporter.generateReport(generateViolations())
+        XCTAssertEqual(try jsonValue(result), try jsonValue(expectedOutput))
+    }
+
+    func testMarkdownReporter() {
+        let expectedOutput = stringFromFile("CannedMarkdownReporterOutput.md")
+        let result = MarkdownReporter.generateReport(generateViolations())
         XCTAssertEqual(result, expectedOutput)
     }
 }

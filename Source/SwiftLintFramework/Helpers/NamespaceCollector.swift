@@ -1,12 +1,3 @@
-//
-//  NamespaceCollector.swift
-//  SwiftLint
-//
-//  Created by Marcelo Fabri on 10/07/17.
-//  Copyright © 2017 Realm. All rights reserved.
-//
-
-import Foundation
 import SourceKittenFramework
 
 struct NamespaceCollector {
@@ -44,9 +35,7 @@ struct NamespaceCollector {
     private func findAllElements(in dictionary: [String: SourceKitRepresentable],
                                  of types: Set<SwiftDeclarationKind>,
                                  namespace: [String] = []) -> [Element] {
-
         return dictionary.substructure.flatMap { subDict -> [Element] in
-
             var elements: [Element] = []
             guard let element = Element(dictionary: subDict, namespace: namespace) else {
                 return elements

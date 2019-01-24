@@ -1,13 +1,3 @@
-//
-//  PrivateOutletRuleConfiguration.swift
-//  SwiftLint
-//
-//  Created by Rohan Dhaimade on 24/8/16.
-//  Copyright © 2016 Realm. All rights reserved.
-//
-
-import Foundation
-
 public struct PrivateOutletRuleConfiguration: RuleConfiguration, Equatable {
     var severityConfiguration = SeverityConfiguration(.warning)
     var allowPrivateSet = false
@@ -31,10 +21,4 @@ public struct PrivateOutletRuleConfiguration: RuleConfiguration, Equatable {
             try severityConfiguration.apply(configuration: severityString)
         }
     }
-}
-
-public func == (lhs: PrivateOutletRuleConfiguration,
-                rhs: PrivateOutletRuleConfiguration) -> Bool {
-    return lhs.allowPrivateSet == rhs.allowPrivateSet &&
-        lhs.severityConfiguration == rhs.severityConfiguration
 }

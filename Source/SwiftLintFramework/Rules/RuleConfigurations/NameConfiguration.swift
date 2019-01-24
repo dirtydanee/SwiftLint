@@ -1,11 +1,3 @@
-//
-//  NameConfiguration.swift
-//  SwiftLint
-//
-//  Created by Scott Hoyt on 1/19/16.
-//  Copyright © 2016 Realm. All rights reserved.
-//
-
 import Foundation
 
 public struct NameConfiguration: RuleConfiguration, Equatable {
@@ -32,7 +24,7 @@ public struct NameConfiguration: RuleConfiguration, Equatable {
     }
 
     var allowedSymbols: CharacterSet {
-        return CharacterSet(charactersIn: allowedSymbolsSet.joined())
+        return CharacterSet(safeCharactersIn: allowedSymbolsSet.joined())
     }
 
     public init(minLengthWarning: Int,
@@ -74,14 +66,6 @@ public struct NameConfiguration: RuleConfiguration, Equatable {
             queuedPrintError("\"validates_start_lowercase\" configuration was renamed to " +
                 "\"validates_start_with_lowercase\" and will be removed in a future release.")
         }
-    }
-
-    public static func == (lhs: NameConfiguration, rhs: NameConfiguration) -> Bool {
-        return lhs.minLength == rhs.minLength &&
-            lhs.maxLength == rhs.maxLength &&
-            zip(lhs.excluded, rhs.excluded).reduce(true) { $0 && ($1.0 == $1.1) } &&
-            zip(lhs.allowedSymbolsSet, rhs.allowedSymbolsSet).reduce(true) { $0 && ($1.0 == $1.1) } &&
-            lhs.validatesStartWithLowercase == rhs.validatesStartWithLowercase
     }
 }
 

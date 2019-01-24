@@ -8,7 +8,7 @@ SwiftLint hooks into [Clang](http://clang.llvm.org) and
 [AST](http://clang.llvm.org/docs/IntroductionToTheClangAST.html) representation
 of your source files for more accurate results.
 
-![Test Status](https://travis-ci.org/realm/SwiftLint.svg?branch=master)
+[![Build Status](https://dev.azure.com/jpsim/SwiftLint/_apis/build/status/realm.SwiftLint?branchName=master)](https://dev.azure.com/jpsim/SwiftLint/_build/latest?definitionId=4?branchName=master)
 [![codecov.io](https://codecov.io/github/realm/SwiftLint/coverage.svg?branch=master)](https://codecov.io/github/realm/SwiftLint?branch=master)
 
 ![](assets/screenshot.png)
@@ -48,7 +48,7 @@ git is discouraged.
 
 ### Using [Mint](https://github.com/yonaskolb/mint):
 ```
-$ mint run realm/SwiftLint
+$ mint install realm/SwiftLint
 ```
 
 ### Using a pre-built package:
@@ -60,7 +60,7 @@ running it.
 ### Compiling from source:
 
 You can also build from source by cloning this project and running
-`git submodule update --init --recursive; make install` (Xcode 9.0 or later).
+`git submodule update --init --recursive; make install` (Xcode 10.0 or later).
 
 ## Usage
 
@@ -97,7 +97,7 @@ Alternatively, if you've installed SwiftLint via CocoaPods the script should loo
 To run `swiftlint autocorrect` on save in Xcode, install the
 [SwiftLintXcode](https://github.com/ypresto/SwiftLintXcode) plugin from Alcatraz.
 
-⚠ ️This plugin will not work with Xcode 8 or later without disabling SIP.
+⚠️This plugin will not work with Xcode 8 or later without disabling SIP.
 This is not recommended.
 
 ### AppCode
@@ -115,16 +115,23 @@ APM.
 
 ### fastlane
 
-You can use the [official swiftlint fastlane action](https://docs.fastlane.tools/actions/#swiftlint) to run SwiftLint as part of your fastlane process.
+You can use the [official swiftlint fastlane action](https://docs.fastlane.tools/actions/swiftlint) to run SwiftLint as part of your fastlane process.
 
 ```ruby
 swiftlint(
-  mode: :lint,                            # SwiftLint mode: :lint (default) or :autocorrect
-  executable: "Pods/SwiftLint/swiftlint", # The SwiftLint binary path (optional). Important if you've installed it via CocoaPods
-  output_file: "swiftlint.result.json",   # The path of the output file (optional)
-  reporter: "json",                       # The custom reporter to use (optional)
-  config_file: ".swiftlint-ci.yml",       # The path of the configuration file (optional)
-  ignore_exit_status: true                # Allow fastlane to continue even if SwiftLint returns a non-zero exit status
+    mode: :lint,                            # SwiftLint mode: :lint (default) or :autocorrect
+    executable: "Pods/SwiftLint/swiftlint", # The SwiftLint binary path (optional). Important if you've installed it via CocoaPods
+    path: "/path/to/lint",                  # Specify path to lint (optional)
+    output_file: "swiftlint.result.json",   # The path of the output file (optional)
+    reporter: "json",                       # The custom reporter to use (optional)
+    config_file: ".swiftlint-ci.yml",       # The path of the configuration file (optional)
+    files: [                                # List of files to process (optional)
+        "AppDelegate.swift",
+        "path/to/project/Model.swift"
+    ],
+    ignore_exit_status: true,               # Allow fastlane to continue even if SwiftLint returns a non-zero exit status (Default: false)
+    quiet: true,                            # Don't print status logs like 'Linting ' & 'Done linting' (Default: false)
+    strict: true                            # Fail on warnings? (Default: false)
 )
 ```
 
@@ -135,18 +142,20 @@ swiftlint(
 $ swiftlint help
 Available commands:
 
-   autocorrect  Automatically correct warnings and errors
-   help         Display general or command-specific help
-   lint         Print lint warnings and errors for the Swift files in the current directory (default command)
-   rules        Display the list of rules and their identifiers
-   version      Display the current version of SwiftLint
+   analyze         [Experimental] Run analysis rules
+   autocorrect     Automatically correct warnings and errors
+   generate-docs   Generates markdown documentation for all rules
+   help            Display general or command-specific help
+   lint            Print lint warnings and errors (default command)
+   rules           Display the list of rules and their identifiers
+   version         Display the current version of SwiftLint
 ```
 
 Run `swiftlint` in the directory containing the Swift files to lint. Directories
 will be searched recursively.
 
-To specify a list of files when using `lint` or `autocorrect` (like the list of
-files modified by Xcode specified by the
+To specify a list of files when using `lint`, `autocorrect` or `analyze`
+(like the list of files modified by Xcode specified by the
 [`ExtraBuildPhase`](https://github.com/norio-nomura/ExtraBuildPhase) Xcode
 plugin, or modified files in the working tree based on `git ls-files -m`), you
 can do so by passing the option `--use-script-input-files` and setting the
@@ -198,12 +207,13 @@ environment variable.
 
 Here's a reference of which SwiftLint version to use for a given Swift version.
 
-| Swift version | Last supported SwiftLint release |
-| ------------- | -------------------------------- |
-| Swift 1.x     | SwiftLint 0.1.2                  |
-| Swift 2.x     | SwiftLint 0.18.1                 |
-| Swift 3.x     | Latest                           |
-| Swift 4.x     | Latest                           |
+| Swift version   | Last supported SwiftLint release |
+|:----------------|:---------------------------------|
+| Swift 1.x       | SwiftLint 0.1.2                  |
+| Swift 2.x       | SwiftLint 0.18.1                 |
+| Swift 3.x       | SwiftLint 0.25.1                 |
+| Swift 4.0-4.1.x | SwiftLint 0.28.2                 |
+| Swift 4.2+      | Latest                           |
 
 ## Rules
 
@@ -250,6 +260,22 @@ let noWarning :String = "" // No warning about colons immediately after variable
 let hasWarning :String = "" // Warning generated about colons immediately after variable names
 ```
 
+Including the `all` keyword will disable all rules until the linter sees a matching enable comment:
+
+`// swiftlint:disable all`
+`// swiftlint:enable all`
+
+For example:
+
+```swift
+// swiftlint:disable all
+let noWarning :String = "" // No warning about colons immediately after variable names!
+let i = "" // Also no warning about short identifier names
+// swiftlint:enable all
+let hasWarning :String = "" // Warning generated about colons immediately after variable names
+let y = "" // Warning generated about short identifier names
+```
+
 It's also possible to modify a `disable` or `enable` command by appending
 `:previous`, `:this` or `:next` for only applying the command to the previous,
 this (current) or next line respectively.
@@ -280,6 +306,9 @@ Rule inclusion:
 * `whitelist_rules`: Acts as a whitelist, only the rules specified in this list
   will be enabled. Can not be specified alongside `disabled_rules` or
   `opt_in_rules`.
+* `analyzer_rules`: This is an entirely separate list of rules that are only
+  run by the `analyze` command. All analyzer rules are opt-in, so this is the
+  only configurable rule list (there is no disabled/whitelist equivalent).
 
 ```yaml
 disabled_rules: # rule identifiers to exclude from running
@@ -297,6 +326,9 @@ excluded: # paths to ignore during linting. Takes precedence over `included`.
   - Pods
   - Source/ExcludedFolder
   - Source/ExcludedFile.swift
+  - Source/*/ExcludedFile.swift # Exclude files with a wildcard
+analyzer_rules: # Rules run by `swiftlint analyze` (experimental)
+  - explicit_self
 
 # configurable rules can be customized from this configuration file
 # binary rules can set their severity level
@@ -329,7 +361,7 @@ identifier_name:
     - id
     - URL
     - GlobalAPIKey
-reporter: "xcode" # reporter type (xcode, json, csv, checkstyle, junit, html, emoji)
+reporter: "xcode" # reporter type (xcode, json, csv, checkstyle, junit, html, emoji, sonarqube, markdown)
 ```
 
 You can also use environment variables in your configuration file,
@@ -337,7 +369,7 @@ by using `${SOME_VARIABLE}` in a string.
 
 #### Defining Custom Rules
 
-You can define custom regex-based rules in you configuration file using the
+You can define custom regex-based rules in your configuration file using the
 following syntax:
 
 ```yaml
@@ -385,6 +417,8 @@ are all the possible syntax kinds:
 * string_interpolation_anchor
 * typeidentifier
 
+If using custom rules alongside a whitelist, make sure to add `custom_rules` as an item under `whitelist_rules`.
+
 #### Nested Configurations
 
 SwiftLint supports nesting configuration files for more granular control over
@@ -409,6 +443,22 @@ Please make sure to have backups of these files before running
 Standard linting is disabled while correcting because of the high likelihood of
 violations (or their offsets) being incorrect after modifying a file while
 applying corrections.
+
+### Analyze (experimental)
+
+The _experimental_ `swiftlint analyze` command can lint Swift files using the
+full type-checked AST. The compiler log path containing the clean `swiftc` build
+command invocation (incremental builds will fail) must be passed to `analyze`
+via the `--compiler-log-path` flag.
+e.g. `--compiler-log-path /path/to/xcodebuild.log`
+
+This can be obtained by running
+`xcodebuild -workspace {WORKSPACE}.xcworkspace -scheme {SCHEME} > xcodebuild.log`
+with a clean `DerivedData` folder.
+
+This command and related code in SwiftLint is subject to substantial changes at
+any time while this feature is marked as experimental. Analyzer rules also tend
+to be considerably slower than lint rules.
 
 ## License
 

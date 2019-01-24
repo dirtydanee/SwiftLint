@@ -1,13 +1,3 @@
-//
-//  OverridenSuperCallConfiguration.swift
-//  SwiftLint
-//
-//  Created by Angel Garcia on 05/09/16.
-//  Copyright © 2016 Realm. All rights reserved.
-//
-
-import Foundation
-
 public struct OverridenSuperCallConfiguration: RuleConfiguration, Equatable {
     private let defaultIncluded = [
         //NSObject
@@ -91,11 +81,4 @@ public struct OverridenSuperCallConfiguration: RuleConfiguration, Equatable {
         names = names.filter { !excluded.contains($0) }
         return names
     }
-}
-
-public func == (lhs: OverridenSuperCallConfiguration,
-                rhs: OverridenSuperCallConfiguration) -> Bool {
-    return lhs.excluded == rhs.excluded &&
-        lhs.included == rhs.included &&
-        lhs.severityConfiguration == rhs.severityConfiguration
 }

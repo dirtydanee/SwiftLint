@@ -1,16 +1,7 @@
-//
-//  IdentifierNameRuleTests.swift
-//  SwiftLint
-//
-//  Created by Javier Hernandez on 16/04/17.
-//  Copyright © 2017 Realm. All rights reserved.
-//
-
 import SwiftLintFramework
 import XCTest
 
 class IdentifierNameRuleTests: XCTestCase {
-
     func testIdentifierName() {
         verifyRule(IdentifierNameRule.description)
     }
@@ -52,5 +43,15 @@ class IdentifierNameRuleTests: XCTestCase {
                                          .with(triggeringExamples: triggeringExamples)
 
         verifyRule(description, ruleConfiguration: ["validates_start_with_lowercase": false])
+    }
+
+    func testLinuxCrashOnEmojiNames() {
+        let baseDescription = IdentifierNameRule.description
+        let triggeringExamples = [
+            "let 👦🏼 = \"👦🏼\""
+        ]
+
+        let description = baseDescription.with(triggeringExamples: triggeringExamples)
+        verifyRule(description, ruleConfiguration: ["allowed_symbols": ["$", "%"]])
     }
 }

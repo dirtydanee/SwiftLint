@@ -1,17 +1,9 @@
-//
-//  File+Cache.swift
-//  SwiftLint
-//
-//  Created by Nikolaj Schumacher on 5/26/15.
-//  Copyright © 2015 Realm. All rights reserved.
-//
-
 import Foundation
 import SourceKittenFramework
 
 private var responseCache = Cache({ file -> [String: SourceKitRepresentable]? in
     do {
-        return try Request.editorOpen(file: file).failableSend()
+        return try Request.editorOpen(file: file).sendIfNotDisabled()
     } catch let error as Request.Error {
         queuedPrintError(error.description)
         return nil
@@ -99,7 +91,6 @@ private class Cache<T> {
 }
 
 extension File {
-
     fileprivate var cacheKey: String {
         return path ?? contents
     }

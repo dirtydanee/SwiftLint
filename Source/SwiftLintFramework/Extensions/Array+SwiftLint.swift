@@ -1,11 +1,3 @@
-//
-//  Array+SwiftLint.swift
-//  SwiftLint
-//
-//  Created by Scott Hoyt on 1/11/16.
-//  Copyright © 2016 Realm. All rights reserved.
-//
-
 import Dispatch
 import Foundation
 
@@ -55,22 +47,17 @@ extension Array {
         return parallelMap(transform: transform).flatMap { $0 }
     }
 
-    func parallelFlatMap<T>(transform: @escaping ((Element) -> T?)) -> [T] {
-        return parallelMap(transform: transform).flatMap { $0 }
+    func parallelCompactMap<T>(transform: @escaping ((Element) -> T?)) -> [T] {
+        return parallelMap(transform: transform).compactMap { $0 }
     }
 
-    func parallelMap<T>(transform: @escaping ((Element) -> T)) -> [T] {
-        var result = [(Int, T)]()
-        result.reserveCapacity(count)
-
-        let queueLabelPrefix = "io.realm.SwiftLintFramework.map.\(NSUUID().uuidString)"
-        let resultAccumulatorQueue = DispatchQueue(label: "\(queueLabelPrefix).resultAccumulator")
-        DispatchQueue.concurrentPerform(iterations: count) { index in
-            let jobIndexAndResults = (index, transform(self[index]))
-            resultAccumulatorQueue.sync {
-                result.append(jobIndexAndResults)
+    func parallelMap<T>(transform: (Element) -> T) -> [T] {
+        var result = ContiguousArray<T?>(repeating: nil, count: count)
+        return result.withUnsafeMutableBufferPointer { buffer in
+            DispatchQueue.concurrentPerform(iterations: buffer.count) { idx in
+                buffer[idx] = transform(self[idx])
             }
+            return buffer.map { $0! }
         }
-        return result.sorted { $0.0 < $1.0 }.map { $0.1 }
     }
 }

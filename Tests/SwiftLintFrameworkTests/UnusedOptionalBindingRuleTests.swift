@@ -1,17 +1,8 @@
-//
-//  UnusedOptionalBindingRuleTests.swift
-//  SwiftLint
-//
-//  Created by Marcelo Fabri on 05/01/17.
-//  Copyright © 2017 Realm. All rights reserved.
-//
-
 import Foundation
 @testable import SwiftLintFramework
 import XCTest
 
 class UnusedOptionalBindingRuleTests: XCTestCase {
-
     func testDefaultConfiguration() {
         let baseDescription = UnusedOptionalBindingRule.description
         let triggeringExamples = baseDescription.triggeringExamples + [

@@ -1,13 +1,3 @@
-//
-//  ProhibitedSuperConfiguration.swift
-//  SwiftLint
-//
-//  Created by Aaron McTavish on 12/12/16.
-//  Copyright © 2016 Realm. All rights reserved.
-//
-
-import Foundation
-
 public struct ProhibitedSuperConfiguration: RuleConfiguration, Equatable {
     var severityConfiguration = SeverityConfiguration(.warning)
     var excluded = [String]()
@@ -65,11 +55,4 @@ public struct ProhibitedSuperConfiguration: RuleConfiguration, Equatable {
         names = names.filter { !excluded.contains($0) }
         return names
     }
-}
-
-public func == (lhs: ProhibitedSuperConfiguration,
-                rhs: ProhibitedSuperConfiguration) -> Bool {
-    return lhs.excluded == rhs.excluded &&
-        lhs.included == rhs.included &&
-        lhs.severityConfiguration == rhs.severityConfiguration
 }

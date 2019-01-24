@@ -1,18 +1,9 @@
-//
-//  CallPairRule.swift
-//  SwiftLint
-//
-//  Created by Tom Quist on 11/07/17.
-//  Copyright © 2017 Realm. All rights reserved.
-//
-
 import Foundation
 import SourceKittenFramework
 
 internal protocol CallPairRule: Rule {}
 
 extension CallPairRule {
-
     /**
      Validates the given file for pairs of expressions where the first part of the expression
      is a method call (with or without parameters) having the given `callNameSuffix` and the
@@ -32,17 +23,19 @@ extension CallPairRule {
         - patternSyntaxKinds: Syntax kinds matches should have
         - callNameSuffix: Suffix of the first method call name
         - severity: Severity of violations
+        - predicate: Predicate to apply after checking callNameSuffix
      */
     internal func validate(file: File,
                            pattern: String,
                            patternSyntaxKinds: [SyntaxKind],
                            callNameSuffix: String,
-                           severity: ViolationSeverity) -> [StyleViolation] {
+                           severity: ViolationSeverity,
+                           predicate: ([String: SourceKitRepresentable]) -> Bool = { _ in true }) -> [StyleViolation] {
         let firstRanges = file.match(pattern: pattern, with: patternSyntaxKinds)
         let contents = file.contents.bridge()
         let structure = file.structure
 
-        let violatingLocations: [Int] = firstRanges.flatMap { range in
+        let violatingLocations: [Int] = firstRanges.compactMap { range in
             guard let bodyByteRange = contents.NSRangeToByteRange(start: range.location,
                                                                   length: range.length),
                 case let firstLocation = range.location + range.length - 1,
@@ -59,7 +52,7 @@ extension CallPairRule {
                     return false
                 }
 
-                return name.hasSuffix(callNameSuffix)
+                return name.hasSuffix(callNameSuffix) && predicate(dictionary)
             })
         }
 
@@ -73,7 +66,6 @@ extension CallPairRule {
     private func methodCall(forByteOffset byteOffset: Int, excludingOffset: Int,
                             dictionary: [String: SourceKitRepresentable],
                             predicate: ([String: SourceKitRepresentable]) -> Bool) -> Int? {
-
         if let kindString = dictionary.kind,
             SwiftExpressionKind(rawValue: kindString) == .call,
             let bodyOffset = dictionary.offset,
@@ -98,5 +90,4 @@ extension CallPairRule {
 
         return nil
     }
-
 }

@@ -1,13 +1,4 @@
-//
-//  PrivateUnitTestConfiguration.swift
-//  SwiftLint
-//
-//  Created by Cristian Filipov on 8/5/16.
-//  Copyright © 2016 Realm. All rights reserved.
-//
-
 import Foundation
-import SourceKittenFramework
 
 public struct PrivateUnitTestConfiguration: RuleConfiguration, Equatable, CacheDescriptionProvider {
     public let identifier: String
@@ -65,12 +56,4 @@ public struct PrivateUnitTestConfiguration: RuleConfiguration, Equatable, CacheD
             try severityConfiguration.apply(configuration: severityString)
         }
     }
-}
-
-public func == (lhs: PrivateUnitTestConfiguration, rhs: PrivateUnitTestConfiguration) -> Bool {
-    return lhs.identifier == rhs.identifier &&
-        lhs.message == rhs.message &&
-        lhs.regex == rhs.regex &&
-        lhs.included?.pattern == rhs.included?.pattern &&
-        lhs.severity == rhs.severity
 }

@@ -1,11 +1,3 @@
-//
-//  Reporter.swift
-//  SwiftLint
-//
-//  Created by JP Simard on 9/19/15.
-//  Copyright © 2015 Realm. All rights reserved.
-//
-
 public protocol Reporter: CustomStringConvertible {
     static var identifier: String { get }
     static var isRealtime: Bool { get }
@@ -29,6 +21,10 @@ public func reporterFrom(identifier: String) -> Reporter.Type {
         return HTMLReporter.self
     case EmojiReporter.identifier:
         return EmojiReporter.self
+    case SonarQubeReporter.identifier:
+        return SonarQubeReporter.self
+    case MarkdownReporter.identifier:
+        return MarkdownReporter.self
     default:
         queuedFatalError("no reporter with identifier '\(identifier)' available.")
     }

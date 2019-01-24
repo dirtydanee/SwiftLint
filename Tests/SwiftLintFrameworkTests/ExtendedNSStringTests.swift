@@ -1,16 +1,7 @@
-//
-//  ExtendedNSStringTests.swift
-//  SwiftLint
-//
-//  Created by crimsonwoods on 11/18/15.
-//  Copyright © 2015 Realm. All rights reserved.
-//
-
 import Foundation
 import XCTest
 
 class ExtendedNSStringTests: XCTestCase {
-
     func testLineAndCharacterForByteOffset_forContentsContainingMultibyteCharacters() {
         let contents = "" +
         "import Foundation\n" +                               // 18 characters

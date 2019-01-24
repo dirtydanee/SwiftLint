@@ -1,16 +1,7 @@
-//
-//  ColonRuleTests.swift
-//  SwiftLint
-//
-//  Created by Marcelo Fabri on 12/18/16.
-//  Copyright © 2016 Realm. All rights reserved.
-//
-
 import SwiftLintFramework
 import XCTest
 
 class ColonRuleTests: XCTestCase {
-
     func testColonWithDefaultConfiguration() {
         // Verify Colon rule with test values for when flexible_right_spacing
         // is false (default).

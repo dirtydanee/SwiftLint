@@ -1,11 +1,3 @@
-//
-//  ConfigurationTests+Nested.swift
-//  SwiftLint
-//
-//  Created by Stéphane Copin on 7/24/17.
-//  Copyright © 2017 Realm. All rights reserved.
-//
-
 import Foundation
 import SourceKittenFramework
 @testable import SwiftLintFramework
@@ -70,9 +62,8 @@ extension ConfigurationTests {
         XCTAssertEqual(configuration(forWarningThreshold: 3)
             .merge(with: configuration(forWarningThreshold: nil)).warningThreshold,
                        3)
-        XCTAssertEqual(configuration(forWarningThreshold: nil)
-            .merge(with: configuration(forWarningThreshold: nil)).warningThreshold,
-                       nil)
+        XCTAssertNil(configuration(forWarningThreshold: nil)
+            .merge(with: configuration(forWarningThreshold: nil)).warningThreshold)
     }
 
     func testNestedWhitelistedRules() {
@@ -93,5 +84,33 @@ extension ConfigurationTests {
         XCTAssertTrue(mergedConfiguration2.contains(rule: TodoRule.self))
         XCTAssertTrue(mergedConfiguration2.contains(rule: ForceCastRule.self))
         XCTAssertTrue(mergedConfiguration2.contains(rule: ForceTryRule.self))
+    }
+
+    func testNestedConfigurationsWithCustomRulesMerge() {
+        let mergedConfiguration = projectMockConfig0CustomRules.merge(with: projectMockConfig2CustomRules)
+        guard let mergedCustomRules = mergedConfiguration.rules.first(where: { $0 is CustomRules }) as? CustomRules
+            else {
+            return XCTFail("Custom rule are expected to be present")
+        }
+        XCTAssertTrue(
+            mergedCustomRules.configuration.customRuleConfigurations.contains(where: { $0.identifier == "no_abc" })
+        )
+        XCTAssertTrue(
+            mergedCustomRules.configuration.customRuleConfigurations.contains(where: { $0.identifier == "no_abcd" })
+        )
+    }
+
+    func testNestedConfigurationAllowsDisablingParentsCustomRules() {
+        let mergedConfiguration = projectMockConfig0CustomRules.merge(with: projectMockConfig2CustomRulesDisabled)
+        guard let mergedCustomRules = mergedConfiguration.rules.first(where: { $0 is CustomRules }) as? CustomRules
+            else {
+            return XCTFail("Custom rule are expected to be present")
+        }
+        XCTAssertFalse(
+            mergedCustomRules.configuration.customRuleConfigurations.contains(where: { $0.identifier == "no_abc" })
+        )
+        XCTAssertTrue(
+            mergedCustomRules.configuration.customRuleConfigurations.contains(where: { $0.identifier == "no_abcd" })
+        )
     }
 }

@@ -1,16 +1,7 @@
-//
-//  NumberSeparatorRuleTests.swift
-//  SwiftLint
-//
-//  Created by Marcelo Fabri on 01/17/17.
-//  Copyright © 2017 Realm. All rights reserved.
-//
-
 import SwiftLintFramework
 import XCTest
 
 class NumberSeparatorRuleTests: XCTestCase {
-
     func testNumberSeparatorWithDefaultConfiguration() {
         verifyRule(NumberSeparatorRule.description)
     }

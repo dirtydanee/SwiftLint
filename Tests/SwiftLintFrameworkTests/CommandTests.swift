@@ -1,11 +1,3 @@
-//
-//  CommandTests.swift
-//  SwiftLint
-//
-//  Created by JP Simard on 5/24/17.
-//  Copyright © 2017 Realm. All rights reserved.
-//
-
 import Foundation
 import SourceKittenFramework
 @testable import SwiftLintFramework
@@ -19,7 +11,6 @@ private extension Command {
 }
 
 class CommandTests: XCTestCase {
-
     // MARK: Command Creation
 
     func testNoCommandsInEmptyFile() {
@@ -228,6 +219,25 @@ class CommandTests: XCTestCase {
         )
         XCTAssertEqual(
             violations("print(123)\n// swiftlint:disable:previous nesting\n")[0].ruleDescription.identifier,
+            "superfluous_disable_command"
+        )
+    }
+
+    func testInvalidDisableCommands() {
+        XCTAssertEqual(
+            violations("// swiftlint:disable nesting_foo\nprint(123)\n")[0].ruleDescription.identifier,
+            "superfluous_disable_command"
+        )
+        XCTAssertEqual(
+            violations("// swiftlint:disable:next nesting_foo\nprint(123)\n")[0].ruleDescription.identifier,
+            "superfluous_disable_command"
+        )
+        XCTAssertEqual(
+            violations("print(123) // swiftlint:disable:this nesting_foo\n")[0].ruleDescription.identifier,
+            "superfluous_disable_command"
+        )
+        XCTAssertEqual(
+            violations("print(123)\n// swiftlint:disable:previous nesting_foo\n")[0].ruleDescription.identifier,
             "superfluous_disable_command"
         )
     }

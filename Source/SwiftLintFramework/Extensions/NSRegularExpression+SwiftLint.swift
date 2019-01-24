@@ -1,40 +1,20 @@
-//
-//  NSRegularExpression+SwiftLint.swift
-//  SwiftLint
-//
-//  Created by Scott Hoyt on 1/21/16.
-//  Copyright © 2016 Realm. All rights reserved.
-//
-
 import Foundation
-
-#if os(Linux)
-#if !swift(>=4.0)
-public typealias NSTextCheckingResult = TextCheckingResult
-#endif
-#else
-#if !swift(>=4.0)
-extension NSTextCheckingResult {
-    internal func range(at idx: Int) -> NSRange {
-        return rangeAt(idx)
-    }
-}
-#endif
-#endif
 
 private var regexCache = [RegexCacheKey: NSRegularExpression]()
 private let regexCacheLock = NSLock()
 
 private struct RegexCacheKey: Hashable {
+    // Disable unused private declaration rule here because even though we don't use these properties
+    // directly, we rely on them for their hashable and equatable behavior.
+    // swiftlint:disable unused_private_declaration
     let pattern: String
     let options: NSRegularExpression.Options
+    // swiftlint:enable unused_private_declaration
+}
 
-    var hashValue: Int {
-        return pattern.hashValue ^ options.rawValue.hashValue
-    }
-
-    static func == (lhs: RegexCacheKey, rhs: RegexCacheKey) -> Bool {
-        return lhs.options == rhs.options && lhs.pattern == rhs.pattern
+extension NSRegularExpression.Options: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(rawValue)
     }
 }
 

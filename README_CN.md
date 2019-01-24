@@ -4,7 +4,7 @@ SwiftLint 是一个用于强制检查 Swift 代码风格和规定的一个工具
 
 SwiftLint Hook 了 [Clang](http://clang.llvm.org) 和 [SourceKit](http://www.jpsim.com/uncovering-sourcekit) 从而能够使用 [AST](http://clang.llvm.org/docs/IntroductionToTheClangAST.html) 来表示源代码文件的更多精确结果。
 
-![Test Status](https://travis-ci.org/realm/SwiftLint.svg?branch=master)
+[![Build Status](https://dev.azure.com/jpsim/SwiftLint/_apis/build/status/realm.SwiftLint?branchName=master)](https://dev.azure.com/jpsim/SwiftLint/_build/latest?definitionId=4?branchName=master)
 [![codecov.io](https://codecov.io/github/realm/SwiftLint/coverage.svg?branch=master)](https://codecov.io/github/realm/SwiftLint?branch=master)
 
 ![](assets/screenshot.png)
@@ -32,7 +32,7 @@ pod 'SwiftLint'
 
 自从 SwiftLint 支持安装某个特定版本后，安装一个指定版本的 SwiftLint 是目前推荐的做法相比较于简单地选择最新版本安装的话（比如通过 Homebrew 安装的话）。
 
-请注意这会将 SwiftLint 二进制文件、所依赖的二进制文件和 Swift 二进制库安装到 `Pods/` 目录下，所以请将此目录添加到版本控制系统中进行跟踪。
+请注意这会将 SwiftLint 二进制文件、所依赖的二进制文件和 Swift 二进制库安装到 `Pods/` 目录下，所以不推荐将此目录添加到版本控制系统（如 git）中进行跟踪。
 
 ### 使用安装包：
 
@@ -83,6 +83,28 @@ fi
 ### Atom
 
 整合 SwiftLint 到 [Atom](https://atom.io/) 需要从 APM 安装 [`linter-swiftlint`](https://atom.io/packages/linter-swiftlint) 包。
+
+### fastlane
+
+你可以用[fastlane官方的SwiftLint功能](https://docs.fastlane.tools/actions/swiftlint)来运行SwiftLint作为你的Fastlane程序的一部分
+
+```ruby
+swiftlint(
+    mode: :lint,                            # SwiftLint模式: :lint (默认) 或者 :autocorrect
+    executable: "Pods/SwiftLint/swiftlint", # SwiftLint的程序路径 (可选的). 对于用CocoaPods集成SwiftLint时很重要
+    path: "/path/to/lint",                  # 特殊的检查路径 (可选的)
+    output_file: "swiftlint.result.json",   # 检查结果输出路径 (可选的)
+    reporter: "json",                       # 输出格式 (可选的)
+    config_file: ".swiftlint-ci.yml",       # 配置文件的路径 (可选的)
+    files: [                                # 指定检查文件列表 (可选的)
+        "AppDelegate.swift",
+        "path/to/project/Model.swift"
+    ],
+    ignore_exit_status: true,               # 允许fastlane可以继续执行甚至是Swiftlint返回一个非0的退出状态(默认值: false)
+    quiet: true,                            # 不输出像‘Linting’和‘Done Linting’的状态日志 (默认值: false)
+    strict: true                            # 发现警告时报错? (默认值: false)
+)
+```
 
 ### 命令行
 
@@ -138,12 +160,13 @@ $ TOOLCHAINS=com.apple.dt.toolchain.Swift_2_3 swiftlint autocorrect
 
 这里有一份 SwiftLint 版本和对应该 Swift 版本的对照表作为参考。
 
-| Swift 版本 | 最后一个 SwiftLint 支持版本 |
-| ------------- | -------------------------------- |
-| Swift 1.x     | SwiftLint 0.1.2                  |
-| Swift 2.x     | SwiftLint 0.18.1                 |
-| Swift 3.x     | 最新的                            |
-| Swift 4.x     | 最新的                            |
+| Swift 版本      | 最后一个 SwiftLint 支持版本 |
+|:----------------|:----------------------------|
+| Swift 1.x       | SwiftLint 0.1.2             |
+| Swift 2.x       | SwiftLint 0.18.1            |
+| Swift 3.x       | SwiftLint 0.25.1            |
+| Swift 4.0-4.1.x | SwiftLint 0.28.2            |
+| Swift 4.2+      | 最新的                      |
 
 ## 规则
 

@@ -1,16 +1,6 @@
-//
-//  DynamicInlineRule.swift
-//  SwiftLint
-//
-//  Created by Daniel Duan on 12/08/16.
-//  Copyright © 2015 Realm. All rights reserved.
-//
-
-import Foundation
 import SourceKittenFramework
 
 extension Dictionary where Key: ExpressibleByStringLiteral {
-
     /// Accessibility.
     var accessibility: String? {
         return self["key.accessibility"] as? String
@@ -71,20 +61,34 @@ extension Dictionary where Key: ExpressibleByStringLiteral {
     var usr: Int? {
         return (self["key.usr"] as? Int64).flatMap({ Int($0) })
     }
+    /// Documentation length.
+    var docLength: Int? {
+        return (self["key.doclength"] as? Int64).flatMap({ Int($0) })
+    }
 
-    var enclosedSwiftAttributes: [String] {
+    var attribute: String? {
+        return self["key.attribute"] as? String
+    }
+
+    var enclosedSwiftAttributes: [SwiftDeclarationAttributeKind] {
+        return swiftAttributes.compactMap { $0.attribute }
+                              .compactMap(SwiftDeclarationAttributeKind.init(rawValue:))
+    }
+
+    var swiftAttributes: [[String: SourceKitRepresentable]] {
         let array = self["key.attributes"] as? [SourceKitRepresentable] ?? []
-        return array.flatMap { ($0 as? [String: String])?["key.attribute"] }
+        let dictionaries = array.compactMap { ($0 as? [String: SourceKitRepresentable]) }
+        return dictionaries
     }
 
     var substructure: [[String: SourceKitRepresentable]] {
         let substructure = self["key.substructure"] as? [SourceKitRepresentable] ?? []
-        return substructure.flatMap { $0 as? [String: SourceKitRepresentable] }
+        return substructure.compactMap { $0 as? [String: SourceKitRepresentable] }
     }
 
     var elements: [[String: SourceKitRepresentable]] {
         let elements = self["key.elements"] as? [SourceKitRepresentable] ?? []
-        return elements.flatMap { $0 as? [String: SourceKitRepresentable] }
+        return elements.compactMap { $0 as? [String: SourceKitRepresentable] }
     }
 
     var enclosedVarParameters: [[String: SourceKitRepresentable]] {
@@ -95,7 +99,8 @@ extension Dictionary where Key: ExpressibleByStringLiteral {
 
             if SwiftDeclarationKind(rawValue: kindString) == .varParameter {
                 return [subDict]
-            } else if SwiftExpressionKind(rawValue: kindString) == .argument {
+            } else if SwiftExpressionKind(rawValue: kindString) == .argument ||
+                SwiftExpressionKind(rawValue: kindString) == .closure {
                 return subDict.enclosedVarParameters
             }
 
@@ -116,18 +121,28 @@ extension Dictionary where Key: ExpressibleByStringLiteral {
 
     var inheritedTypes: [String] {
         let array = self["key.inheritedtypes"] as? [SourceKitRepresentable] ?? []
-        return array.flatMap { ($0 as? [String: String])?.name }
+        return array.compactMap { ($0 as? [String: String])?.name }
     }
 
     internal func extractCallsToSuper(methodName: String) -> [String] {
-        let superCall = "super.\(methodName)"
+        guard let methodNameWithoutArguments = methodName.split(separator: "(").first else {
+            return []
+        }
+        let superCall = "super.\(methodNameWithoutArguments)"
         return substructure.flatMap { elems -> [String] in
-            guard let type = elems.kind.flatMap({ SwiftExpressionKind(rawValue: $0) }),
+            guard let type = elems.kind.flatMap(SwiftExpressionKind.init),
                 let name = elems.name,
-                type == .call && superCall.contains(name) else {
+                type == .call && superCall == name else {
                     return elems.extractCallsToSuper(methodName: methodName)
             }
             return [name]
         }
+    }
+}
+
+extension Dictionary where Key == String {
+    /// Returns a dictionary with SwiftLint violation markers (↓) removed from keys.
+    func removingViolationMarkers() -> [Key: Value] {
+        return Dictionary(uniqueKeysWithValues: map { ($0.replacingOccurrences(of: "↓", with: ""), $1) })
     }
 }

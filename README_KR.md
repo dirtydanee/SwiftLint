@@ -4,7 +4,7 @@ SwiftLint는 스위프트 스타일 및 컨벤션을 강제하기 위한 도구�
 
 SwiftLint는 좀 더 정확한 결과를 위해 [Clang](http://clang.llvm.org)과 [SourceKit](http://www.jpsim.com/uncovering-sourcekit)에 연결하여 소스 파일의 [AST](http://clang.llvm.org/docs/IntroductionToTheClangAST.html) 표현을 사용합니다.
 
-![Test Status](https://travis-ci.org/realm/SwiftLint.svg?branch=master)
+[![Build Status](https://dev.azure.com/jpsim/SwiftLint/_apis/build/status/realm.SwiftLint?branchName=master)](https://dev.azure.com/jpsim/SwiftLint/_build/latest?definitionId=4?branchName=master)
 [![codecov.io](https://codecov.io/github/realm/SwiftLint/coverage.svg?branch=master)](https://codecov.io/github/realm/SwiftLint?branch=master)
 
 ![](assets/screenshot.png)
@@ -35,7 +35,7 @@ CocoaPods를 사용하면 최신 버전 외에도 SwiftLint의 특정 버전을 
 
 ### [Mint](https://github.com/yonaskolb/mint)를 사용하는 경우:
 ```
-$ mint run realm/SwiftLint
+$ mint install realm/SwiftLint
 ```
 
 ### 빌드된 패키지를 사용하는 경우:
@@ -90,7 +90,7 @@ AppCode에서 SwiftLint를 사용하려면 [이 플러그인](https://plugins.je
 
 ### fastlane
 
-fastlane 과정에서 SwiftLint를 사용하려면 [공식적인 fastlane 액션](https://docs.fastlane.tools/actions/#swiftlint)를 사용할 수 있습니다.
+fastlane 과정에서 SwiftLint를 사용하려면 [공식적인 fastlane 액션](https://docs.fastlane.tools/actions/swiftlint)를 사용할 수 있습니다.
 
 ```ruby
 swiftlint(
@@ -258,7 +258,7 @@ identifier_name:
     - id
     - URL
     - GlobalAPIKey
-reporter: "xcode" # 보고 유형 (xcode, json, csv, checkstyle, junit, html, emoji)
+reporter: "xcode" # 보고 유형 (xcode, json, csv, checkstyle, junit, html, emoji, markdown)
 ```
 
 #### 커스텀 룰 정의

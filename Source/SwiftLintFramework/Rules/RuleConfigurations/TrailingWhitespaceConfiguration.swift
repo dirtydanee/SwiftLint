@@ -1,13 +1,3 @@
-//
-//  TrailingWhitespaceConfiguration.swift
-//  SwiftLint
-//
-//  Created by Reimar Twelker on 12/4/16.
-//  Copyright © 2016 Realm. All rights reserved.
-//
-
-import Foundation
-
 public struct TrailingWhitespaceConfiguration: RuleConfiguration, Equatable {
     var severityConfiguration = SeverityConfiguration(.warning)
     var ignoresEmptyLines = false
@@ -36,11 +26,4 @@ public struct TrailingWhitespaceConfiguration: RuleConfiguration, Equatable {
             try severityConfiguration.apply(configuration: severityString)
         }
     }
-}
-
-public func == (lhs: TrailingWhitespaceConfiguration,
-                rhs: TrailingWhitespaceConfiguration) -> Bool {
-    return lhs.ignoresEmptyLines == rhs.ignoresEmptyLines &&
-        lhs.ignoresComments == rhs.ignoresComments &&
-        lhs.severityConfiguration == rhs.severityConfiguration
 }

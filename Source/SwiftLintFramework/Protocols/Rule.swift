@@ -1,11 +1,3 @@
-//
-//  Rule.swift
-//  SwiftLint
-//
-//  Created by JP Simard on 5/16/15.
-//  Copyright © 2015 Realm. All rights reserved.
-//
-
 import SourceKittenFramework
 
 public protocol Rule {
@@ -15,11 +7,16 @@ public protocol Rule {
     init() // Rules need to be able to be initialized with default values
     init(configuration: Any) throws
 
+    func validate(file: File, compilerArguments: [String]) -> [StyleViolation]
     func validate(file: File) -> [StyleViolation]
     func isEqualTo(_ rule: Rule) -> Bool
 }
 
 extension Rule {
+    public func validate(file: File, compilerArguments: [String]) -> [StyleViolation] {
+        return validate(file: file)
+    }
+
     public func isEqualTo(_ rule: Rule) -> Bool {
         return type(of: self).description == type(of: rule).description
     }
@@ -31,6 +28,8 @@ extension Rule {
 
 public protocol OptInRule: Rule {}
 
+public protocol AutomaticTestableRule: Rule {}
+
 public protocol ConfigurationProviderRule: Rule {
     associatedtype ConfigurationType: RuleConfiguration
 
@@ -38,10 +37,31 @@ public protocol ConfigurationProviderRule: Rule {
 }
 
 public protocol CorrectableRule: Rule {
+    func correct(file: File, compilerArguments: [String]) -> [Correction]
     func correct(file: File) -> [Correction]
 }
 
+public extension CorrectableRule {
+    func correct(file: File, compilerArguments: [String]) -> [Correction] {
+        return correct(file: file)
+    }
+}
+
 public protocol SourceKitFreeRule: Rule {}
+
+public protocol AnalyzerRule: OptInRule {}
+
+public extension AnalyzerRule {
+    func validate(file: File) -> [StyleViolation] {
+        queuedFatalError("Must call `validate(file:compilerArguments:)` for AnalyzerRule")
+    }
+}
+
+public extension AnalyzerRule where Self: CorrectableRule {
+    func correct(file: File) -> [Correction] {
+        queuedFatalError("Must call `correct(file:compilerArguments:)` for AnalyzerRule")
+    }
+}
 
 // MARK: - ConfigurationProviderRule conformance to Configurable
 
@@ -65,7 +85,9 @@ public extension ConfigurationProviderRule {
 
 // MARK: - == Implementations
 
-public func == (lhs: [Rule], rhs: [Rule]) -> Bool {
-    if lhs.count != rhs.count { return false }
-    return !zip(lhs, rhs).contains { !$0.0.isEqualTo($0.1) }
+public extension Array where Element == Rule {
+    static func == (lhs: Array, rhs: Array) -> Bool {
+        if lhs.count != rhs.count { return false }
+        return !zip(lhs, rhs).contains { !$0.0.isEqualTo($0.1) }
+    }
 }

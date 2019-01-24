@@ -1,13 +1,3 @@
-//
-//  ColonConfiguration.swift
-//  SwiftLint
-//
-//  Created by Marcelo Fabri on 12/18/16.
-//  Copyright © 2016 Realm. All rights reserved.
-//
-
-import Foundation
-
 public struct ColonConfiguration: RuleConfiguration, Equatable {
     private(set) var severityConfiguration = SeverityConfiguration(.warning)
     private(set) var flexibleRightSpacing = false
@@ -30,12 +20,5 @@ public struct ColonConfiguration: RuleConfiguration, Equatable {
         if let severityString = configuration["severity"] as? String {
             try severityConfiguration.apply(configuration: severityString)
         }
-    }
-
-    public static func == (lhs: ColonConfiguration,
-                           rhs: ColonConfiguration) -> Bool {
-        return lhs.severityConfiguration == rhs.severityConfiguration &&
-            lhs.flexibleRightSpacing == rhs.flexibleRightSpacing &&
-            lhs.applyToDictionaries == rhs.applyToDictionaries
     }
 }

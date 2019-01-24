@@ -1,16 +1,7 @@
-//
-//  FileLengthRuleTests.swift
-//  SwiftLint
-//
-//  Created by Samuel Susla on 11/07/17.
-//  Copyright © 2016 Realm. All rights reserved.
-//
-
 import SwiftLintFramework
 import XCTest
 
 class FileLengthRuleTests: XCTestCase {
-
     func testFileLengthWithDefaultConfiguration() {
         verifyRule(FileLengthRule.description, commentDoesntViolate: false,
                    testMultiByteOffsets: false, testShebang: false)
